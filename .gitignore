@@ -1,0 +1,9 @@
+# Just wanted these for structure
+logs/*
+content_repository/*
+database_repository/*
+flowfile_repository/*
+provenance_repository/*
+conf/archive
+conf/archive/*
+conf/*.gz
