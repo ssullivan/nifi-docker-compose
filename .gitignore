@@ -7,3 +7,4 @@ provenance_repository/*
 conf/archive
 conf/archive/*
 conf/*.gz
+data/*
