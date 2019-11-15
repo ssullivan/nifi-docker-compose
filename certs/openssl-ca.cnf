@@ -14,7 +14,7 @@ preserve         = no           # Keep passed DN ordering
 base_dir      = .
 certificate   = $base_dir/ca_crt.pem   # The CA certifcate
 private_key   = $base_dir/ca_key.pem    # The CA private key
-new_certs_dir = $base_dir              # Location for new certs after signing
+new_certs_dir = $base_dir/signed             # Location for new certs after signing
 database      = $base_dir/index.txt    # Database index file
 serial        = $base_dir/serial.txt   # The current serial number
 
