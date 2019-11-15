@@ -1,0 +1,63 @@
+---
+version: "3.7"
+services:
+  nifi:
+    image: apache/nifi:1.10.0
+    deploy:
+      replicas: 1
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    secrets:
+      - ca_p12
+      - ca_crt
+      - ca_key
+      - server_p12
+      - server_crt
+      - server_key
+    volumes:
+      - type: volume
+        source: conf
+        target: /opt/nifi/nifi-1.10.0/conf
+      - type: volume
+        source: content
+        target: /opt/nifi/nifi-1.10.0/content_repository
+      - type: volume
+        source: db
+        target: /opt/nifi/nifi-1.10.0/database_repository
+      - type: volume
+        source: flowfile
+        target: /opt/nifi/nifi-1.10.0/flowfile_repository
+      - type: volume
+        source: provenance
+        target: /opt/nifi/nifi-1.10.0/provenance_repository
+      - type: volume
+        source: logs
+        target: /opt/nifi/nifi-1.10.0/logs
+      - type: volume
+        source: data
+        target: /opt/nifi/nifi-1.10.0/data
+volumes:
+  conf:
+  content:
+  db:
+  flowfile:
+  provenance:
+  logs:
+  data:
+
+secrets:
+  # You will need to run the shell scripts for this to work
+  ca_p12:
+    file: ./certs/ca.p12
+  ca_crt:
+    file: ./certs/ca_crt.pem
+  ca_key:
+    file: ./certs/ca_key.pem
+  server_p12:
+    file: ./certs/server.p12
+  server_crt:
+    file: ./certs/server_crt.pem
+  server_key:
+    file: ./certs/server_key.pem
+...

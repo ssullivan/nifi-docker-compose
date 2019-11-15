@@ -2,4 +2,4 @@
 
 openssl req -config openssl-user.cnf -newkey rsa:4096 -sha256 -nodes -out user.csr -outform PEM -batch
 openssl ca -batch -config openssl-ca.cnf -policy signing_policy -extensions signing_req -out user_crt.pem -infiles user.csr
-openssl pkcs12 -export -out ca.p12 -inkey user_key.pem -in user_crt.pem -passout pass:
+openssl pkcs12 -export -out user.p12 -inkey user_key.pem -in user_crt.pem -passout pass:
