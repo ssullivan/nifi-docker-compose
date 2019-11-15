@@ -21,7 +21,7 @@ localityName         = Locality Name (eg, city)
 localityName_default = Baltimore
 
 organizationName            = Organization Name (eg, company)
-organizationName_default    = Test Server, Limited
+organizationName_default    = Test
 
 commonName           = Common Name (e.g. server FQDN or YOUR name)
 commonName_default   = NifiAdmin

@@ -6,8 +6,16 @@ services:
     deploy:
       replicas: 1
     ports:
-      - "8080:8080"
-      - "8081:8081"
+      - "8443:8443"
+    environment:
+      - AUTH=tls
+      - KEYSTORE_PATH=/run/secrets/server_p12
+      - KEYSTORE_TYPE=PKCS12
+      - KEYSTORE_PASSWORD=changeit
+      - TRUSTSTORE_PATH=/run/secrets/ca_p12
+      - TRUSTSTORE_TYPE=PKCS12
+      - TRUSTSTORE_PASSWORD=changeit
+      - INITITAL_ADMIN_IDENTITY='CN=NifiAdmin,O=Test,L=Baltimore,ST=NDmC=US'
     secrets:
       - ca_p12
       - ca_crt
@@ -49,15 +57,15 @@ volumes:
 secrets:
   # You will need to run the shell scripts for this to work
   ca_p12:
-    file: ./certs/ca.p12
+    file: ../certs/ca.p12
   ca_crt:
-    file: ./certs/ca_crt.pem
+    file: ../certs/ca_crt.pem
   ca_key:
-    file: ./certs/ca_key.pem
+    file: ../certs/ca_key.pem
   server_p12:
-    file: ./certs/server.p12
+    file: ../certs/server.p12
   server_crt:
-    file: ./certs/server_crt.pem
+    file: ../certs/server_crt.pem
   server_key:
-    file: ./certs/server_key.pem
+    file: ../certs/server_key.pem
 ...
