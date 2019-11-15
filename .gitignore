@@ -11,3 +11,9 @@ data/*
 .idea
 nifi.tar.gz
 *.tar
+ca.crt
+ca.key
+*.p12
+*.pkcs12
+*.p6b
+*.csr
