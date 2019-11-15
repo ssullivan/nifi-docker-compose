@@ -17,3 +17,10 @@ ca.key
 *.pkcs12
 *.p6b
 *.csr
+*.pem
+*.csr
+certs/index.txt
+certs/index.txt*
+certs/serial.txt
+certs/serial.txt*
+*.iml
