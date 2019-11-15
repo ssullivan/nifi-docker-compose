@@ -8,3 +8,6 @@ conf/archive
 conf/archive/*
 conf/*.gz
 data/*
+.idea
+nifi.tar.gz
+*.tar
