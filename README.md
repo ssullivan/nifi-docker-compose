@@ -1,13 +1,33 @@
 # nifi-docker-compose
 
-Example nifi docker-compose setup
+This project contains some examples of how I run NiFi for testing locally.
 
+## No TLS
+
+### No Swarm
 ```bash
 docker-compose up -d
 ```
 
+### With Swarm
 ```bash
 docker stack deploy --compose-file docker-compose.yml nifi
+```
+
+## With TLS
+
+
+First, I run the following scripts `create-ca.sh`, `create-server.sh`, and `create-user.sh` to generate
+certs for a ca, server, and user.
+
+### No Swarm
+```bash
+cd tlsdocker-compose up -d
+```
+
+### With Swarm
+```bash
+docker stack deploy --compose-file tls/docker-compose.yml tls-nifi
 ```
 
 # Generating certs
