@@ -5,9 +5,39 @@ This project contains some examples of how I run NiFi for testing locally.
 ## No TLS
 
 ### No Swarm
+
+The following command can be used to start nifi using docker-compose.
+When nifi is started for the first time it will generate temporary credentials 
+for single userlogin.
+
+These credentials can be seen in the container logs and look like the following
+
+```shell
+nifi-docker-compose-nifi-1  | Generated Username [some_generated_username]
+nifi-docker-compose-nifi-1  | Generated Password [some_generated_password]
+```
+
+These will be required to login to the web interface.
+
 ```bash
 docker-compose up -d
 ```
+
+### Starting Over
+
+In order to start over the containers will need to be stopped to stopped and the volumes will
+have to be deleted.
+
+This can be done by using the following commands
+
+```shell
+docker-compose down 
+```
+
+```shell
+./local_remove_volumes.sh
+```
+
 
 ### With Swarm
 ```bash

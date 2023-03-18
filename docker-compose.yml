@@ -1,35 +1,39 @@
 ---
 version: "3.7"
+
+
 services:
   nifi:
-    image: apache/nifi:1.10.0
+    image: apache/nifi:1.19.1
     deploy:
       replicas: 1
     ports:
       - "8080:8080"
-      - "8081:8081"
+      - "8181:8181"
+      - "8443:8443"
+      - "10000:10000"
     volumes:
       - type: volume
         source: conf
-        target: /opt/nifi/nifi-1.10.0/conf
+        target: /opt/nifi/current/conf
       - type: volume
         source: content
-        target: /opt/nifi/nifi-1.10.0/content_repository
+        target: /opt/nifi/current/content_repository
       - type: volume
         source: db
-        target: /opt/nifi/nifi-1.10.0/database_repository
+        target: /opt/nifi/current/database_repository
       - type: volume
         source: flowfile
-        target: /opt/nifi/nifi-1.10.0/flowfile_repository
+        target: /opt/nifi/current/flowfile_repository
       - type: volume
         source: provenance
-        target: /opt/nifi/nifi-1.10.0/provenance_repository
+        target: /opt/nifi/current/provenance_repository
       - type: volume
         source: logs
-        target: /opt/nifi/nifi-1.10.0/logs
+        target: /opt/nifi/current/logs
       - type: volume
         source: data
-        target: /opt/nifi/nifi-1.10.0/data
+        target: /opt/nifi/current/data
 volumes:
   conf:
   content:
