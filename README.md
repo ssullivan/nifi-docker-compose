@@ -2,6 +2,12 @@
 
 This project contains some examples of how I run NiFi for testing locally.
 
+## Prerequisites
+
+The included `justfile` wraps the commands below. Install [`just`](https://github.com/casey/just)
+(e.g. `brew install just` or `apt install just`) to use it, or run the underlying
+`docker compose`/shell commands shown in each recipe directly.
+
 ## No TLS
 
 ### No Swarm
@@ -20,24 +26,19 @@ nifi-docker-compose-nifi-1  | Generated Password [some_generated_password]
 These will be required to login to the web interface.
 
 ```bash
-docker-compose up -d
+just up
 ```
 
 ### Starting Over
 
-In order to start over the containers will need to be stopped to stopped and the volumes will
+In order to start over the containers will need to be stopped and the volumes will
 have to be deleted.
 
-This can be done by using the following commands
+This can be done with a single command:
 
-```shell
-docker-compose down 
+```bash
+just clean-volumes
 ```
-
-```shell
-./local_remove_volumes.sh
-```
-
 
 ### With Swarm
 ```bash
@@ -46,13 +47,21 @@ docker stack deploy --compose-file docker-compose.yml nifi
 
 ## With TLS
 
+First, generate certs for a ca, server, and user:
 
-First, I run the following scripts `create-ca.sh`, `create-server.sh`, and `create-user.sh` to generate
-certs for a ca, server, and user.
+```bash
+just certs-all
+```
 
 ### No Swarm
 ```bash
-cd tlsdocker-compose up -d
+just up-tls
+```
+
+### Starting Over
+
+```bash
+just clean-volumes-tls
 ```
 
 ### With Swarm
@@ -67,31 +76,32 @@ We are going to generate 3 pairs of certs:
 * A server cert
 * A user cert
 
+These are only for testing and development: they all share the same password
+(`changeit` by default, override with `just --set cert_password <password> certs-all`).
+`just certs-all` runs all three in order; each can also be run individually.
+
 ## Setup the Certificate Authority
 
-The following command can be used to establish the CA crt. This example is only for
-testing, and development because it uses a blank password.
-
 ```bash
-cd certs
-./create-ca.sh
+just certs-ca
 ```
 
 ## Setup the Server Cert
 
-The following command can be used to establish the server crt. This example is only for
-testing, and development because it uses a blank password.
-
 ```bash
-cd certs
-./create-server.sh
+just certs-server
 ```
 
 ## Setup the User Cert
-The following command can be used to establish the user crt. This example is only for
-testing, and development because it uses a blank password.
 
 ```bash
-cd certs
-./create-user.sh
+just certs-user
+```
+
+## Starting Over
+
+To remove all generated cert material and start fresh:
+
+```bash
+just clean-certs
 ```
