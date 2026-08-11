@@ -1,13 +1,15 @@
 ---
 services:
   nifi:
-    image: apache/nifi:1.19.1
+    image: apache/nifi:2.11.0
     deploy:
       replicas: 1
     ports:
       - "8443:8443"
     environment:
       - AUTH=tls
+      # 2.x warns that a port-mapped UI may be unreachable without this.
+      - NIFI_WEB_PROXY_HOST=localhost:8443
       - KEYSTORE_PATH=/run/secrets/server_p12
       - KEYSTORE_TYPE=PKCS12
       - KEYSTORE_PASSWORD=${CERT_PASSWORD:-changeit}
