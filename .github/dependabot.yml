@@ -1,0 +1,44 @@
+---
+# Dependabot keeps the pinned container images and any GitHub Actions used by
+# this repo up to date. Docker Compose support is a first-class ecosystem, so
+# no separate workflow file is needed -- GitHub runs Dependabot from this config.
+version: 2
+
+updates:
+  # Both compose files pin apache/nifi to the same tag and are meant to move in
+  # lockstep, so scan both directories and group the bumps into a single PR.
+  - package-ecosystem: "docker-compose"
+    directories:
+      - "/"
+      - "/tls"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      nifi-images:
+        patterns:
+          - "*"
+
+  # No workflows exist yet; this keeps their actions pinned once they do.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "chore(ci)"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+...
