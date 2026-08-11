@@ -3,11 +3,6 @@
 This project contains some examples of how I run NiFi for testing locally.
 Both stacks run NiFi 2.11.0.
 
-> **Upgrading from a 1.x stack:** NiFi 2.x cannot read a 1.x flow, and many 1.x
-> processors were removed. Delete the old volumes (`just clean-volumes` or
-> `just clean-volumes-tls`) before starting, and expect to rebuild any flow by
-> hand.
-
 ## Prerequisites
 
 The included `justfile` wraps the commands below. Install [`just`](https://github.com/casey/just)
