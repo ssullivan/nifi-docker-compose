@@ -24,11 +24,11 @@ clean-volumes: down
 
 # Start the TLS stack (run `just certs-all` first)
 up-tls:
-    docker compose -p {{tls_project}} -f tls/docker-compose.yml up -d
+    CERT_PASSWORD={{cert_password}} docker compose -p {{tls_project}} -f tls/docker-compose.yml up -d
 
 # Stop the TLS stack
 down-tls:
-    docker compose -p {{tls_project}} -f tls/docker-compose.yml down
+    CERT_PASSWORD={{cert_password}} docker compose -p {{tls_project}} -f tls/docker-compose.yml down
 
 # Stop the TLS stack and delete its volumes
 clean-volumes-tls: down-tls

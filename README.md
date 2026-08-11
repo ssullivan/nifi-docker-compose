@@ -29,6 +29,10 @@ These will be required to login to the web interface.
 just up
 ```
 
+The UI is at <https://localhost:8443/nifi>. NiFi only serves plain HTTP when
+`NIFI_WEB_HTTP_PORT` is set, which this stack does not do, so the container
+listens on 8443 over TLS with a self-signed cert — expect a browser warning.
+
 ### Starting Over
 
 In order to start over the containers will need to be stopped and the volumes will
@@ -57,6 +61,12 @@ just certs-all
 ```bash
 just up-tls
 ```
+
+The UI is at <https://localhost:8443/nifi>. Import `certs/user.p12` (password
+`changeit`) into your browser first — the stack authenticates with client
+certificates, so there is no username/password login. The server cert covers
+`localhost`, `localhost.localdomain`, and `127.0.0.1`; other hostnames will
+fail verification.
 
 ### Starting Over
 
