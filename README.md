@@ -1,6 +1,7 @@
 # nifi-docker-compose
 
 This project contains some examples of how I run NiFi for testing locally.
+Both stacks run NiFi 2.11.0.
 
 ## Prerequisites
 
@@ -28,6 +29,11 @@ These will be required to login to the web interface.
 ```bash
 just up
 ```
+
+The UI is at <https://localhost:8443/nifi>. NiFi 2.x is HTTPS-only, so even this
+"no TLS" stack serves the UI over TLS with a self-signed cert — expect a browser
+warning. "No TLS" here means no client-certificate authentication; you log in
+with the generated credentials above.
 
 ### Starting Over
 
@@ -57,6 +63,12 @@ just certs-all
 ```bash
 just up-tls
 ```
+
+The UI is at <https://localhost:8443/nifi>. Import `certs/user.p12` (password
+`changeit`) into your browser first — the stack authenticates with client
+certificates, so there is no username/password login. The server cert covers
+`localhost`, `localhost.localdomain`, and `127.0.0.1`; other hostnames will
+fail verification.
 
 ### Starting Over
 

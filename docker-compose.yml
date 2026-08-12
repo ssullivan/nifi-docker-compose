@@ -1,36 +1,39 @@
 ---
 services:
   nifi:
-    image: apache/nifi:1.19.1
+    image: apache/nifi:2.11.0
     deploy:
       replicas: 1
     ports:
-      - "8080:8080"
-      - "8181:8181"
+      # NiFi 2.x is HTTPS-only -- NIFI_WEB_HTTP_PORT no longer exists, so there
+      # is nothing listening on 8080/8181 to publish.
       - "8443:8443"
       - "10000:10000"
+    environment:
+      # 2.x warns that a port-mapped UI may be unreachable without this.
+      - NIFI_WEB_PROXY_HOST=localhost:8443
     volumes:
       - type: volume
         source: conf
-        target: /opt/nifi/current/conf
+        target: /opt/nifi/nifi-current/conf
       - type: volume
         source: content
-        target: /opt/nifi/current/content_repository
+        target: /opt/nifi/nifi-current/content_repository
       - type: volume
         source: db
-        target: /opt/nifi/current/database_repository
+        target: /opt/nifi/nifi-current/database_repository
       - type: volume
         source: flowfile
-        target: /opt/nifi/current/flowfile_repository
+        target: /opt/nifi/nifi-current/flowfile_repository
       - type: volume
         source: provenance
-        target: /opt/nifi/current/provenance_repository
+        target: /opt/nifi/nifi-current/provenance_repository
       - type: volume
         source: logs
-        target: /opt/nifi/current/logs
+        target: /opt/nifi/nifi-current/logs
       - type: volume
         source: data
-        target: /opt/nifi/current/data
+        target: /opt/nifi/nifi-current/data
 volumes:
   conf:
   content:
