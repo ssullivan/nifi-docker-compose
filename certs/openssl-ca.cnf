@@ -21,10 +21,12 @@ serial        = $base_dir/serial.txt   # The current serial number
 unique_subject = no  # Set to 'no' to allow creation of
                      # several certificates with same subject.
 
-x509_extensions = ca_extensions # The extensions to add to the cert
-
 email_in_dn     = no            # Don't concat the email in the DN
-copy_extensions = copy          # Required to copy SANs from CSR to cert
+# Required to copy SANs from CSR to cert. Note this also lets a CSR request
+# arbitrary SANs -- fine for a throwaway dev CA, never for a real one. The
+# extensions named by `openssl ca -extensions` still win over anything copied,
+# so basicConstraints/keyUsage/extendedKeyUsage stay pinned by the issuer.
+copy_extensions = copy
 
 # The main section is named req because the command we are using is req
 # (openssl req ...)
@@ -46,8 +48,9 @@ encrypt_key = no
 
 # This option specifies the digest algorithm to use. Possible values include
 # md5 sha1 mdc2. If not present then MD5 is used. This option can be overridden
-# on the command line.
-default_md = sha1
+# on the command line. Must not be sha1: the JDK 21 in the NiFi image rejects
+# SHA-1 signatures during certificate path validation.
+default_md = sha256
 
 # if set to the value no this disables prompting of certificate fields and just
 # takes values from the config file directly. It also changes the expected
@@ -65,11 +68,11 @@ utf8 = yes
 distinguished_name = my_req_distinguished_name
 
 
-# this specifies the configuration file section containing a list of extensions
-# to add to the certificate request. It can be overridden by the -reqexts
-# command line switch. See the x509v3_config(5) manual page for details of the
-# extension section format.
-req_extensions = my_extensions
+# The extensions to add when self-signing the CA with `openssl req -x509`.
+# This MUST be x509_extensions, not req_extensions: `req -x509` ignores
+# req_extensions, and without this the CA comes out as a bare X.509 v1 cert
+# with no basicConstraints -- which browsers refuse to trust as an authority.
+x509_extensions = ca_extensions
 
 [ my_req_distinguished_name ]
 C = US
@@ -78,9 +81,10 @@ L = Baltimore
 O  = Fake Org
 CN = ca.localhost.localdomain
 
-[ my_extensions ]
-basicConstraints=CA:TRUE
+[ ca_extensions ]
 subjectKeyIdentifier = hash
+basicConstraints     = critical, CA:TRUE, pathlen:0
+keyUsage             = critical, digitalSignature, cRLSign, keyCertSign
 
 
 ###################################################################
@@ -94,8 +98,21 @@ commonName             = supplied
 emailAddress           = optional
 
 ####################################################################
-[ signing_req ]
+# Used by create-server.sh via `openssl ca -extensions server_signing_req`.
+# clientAuth is included because a NiFi node is also a TLS client for
+# site-to-site and cluster traffic.
+[ server_signing_req ]
 subjectKeyIdentifier   = hash
 authorityKeyIdentifier = keyid,issuer
-basicConstraints       = CA:FALSE
-keyUsage               = digitalSignature, keyEncipherment
+basicConstraints       = critical, CA:FALSE
+keyUsage               = critical, digitalSignature, keyEncipherment
+extendedKeyUsage       = serverAuth, clientAuth
+
+####################################################################
+# Used by create-user.sh via `openssl ca -extensions user_signing_req`.
+[ user_signing_req ]
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid,issuer
+basicConstraints       = critical, CA:FALSE
+keyUsage               = critical, digitalSignature, keyEncipherment
+extendedKeyUsage       = clientAuth

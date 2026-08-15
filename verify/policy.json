@@ -1,0 +1,5 @@
+{
+  "AutoSelectCertificateForUrls": [
+    "{\"pattern\":\"https://localhost:8443\",\"filter\":{}}"
+  ]
+}
