@@ -5,12 +5,9 @@
 version: 2
 
 updates:
-  # Both compose files pin apache/nifi to the same tag and are meant to move in
-  # lockstep, so scan both directories and group the bumps into a single PR.
+  # Keeps the apache/nifi pin in docker-compose.yml current.
   - package-ecosystem: "docker-compose"
-    directories:
-      - "/"
-      - "/tls"
+    directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"

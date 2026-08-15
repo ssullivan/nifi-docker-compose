@@ -1,38 +1,37 @@
-plain_project := "nifi-docker-compose"
-tls_project := "nifi-docker-compose-tls"
+project := "nifi-docker-compose"
 cert_password := "changeit"
+compose := "docker compose -p " + project + " -f docker-compose.yml"
 
 # List available recipes
 default:
     @just --list
 
-# --- Plain (no TLS) stack ---
+# --- Stack ---
 
-# Start the non-TLS stack
+# Start NiFi (run `just certs-all` first)
 up:
-    docker compose -p {{plain_project}} -f docker-compose.yml up -d
+    CERT_PASSWORD={{cert_password}} {{compose}} up -d
 
-# Stop the non-TLS stack
+# Stop NiFi
 down:
-    docker compose -p {{plain_project}} -f docker-compose.yml down
+    CERT_PASSWORD={{cert_password}} {{compose}} down
 
-# Stop the non-TLS stack and delete its volumes
+# Follow the NiFi logs
+logs:
+    CERT_PASSWORD={{cert_password}} {{compose}} logs -f nifi
+
+# Block until the HTTPS listener answers (typically 15-60s after `just up`).
+# The client cert is required even here: NiFi demands one during the TLS
+# handshake, so an anonymous probe is reset rather than answered.
+wait:
+    until curl -s -o /dev/null --cacert certs/ca_crt.pem \
+      --cert certs/user_crt.pem --key certs/user_key.pem --pass {{cert_password}} \
+      https://localhost:8443/nifi-api/flow/current-user; do sleep 5; done
+    @echo "NiFi is up: https://localhost:8443/nifi/"
+
+# Stop NiFi and delete its volumes
 clean-volumes: down
-    docker volume ls -q --filter label=com.docker.compose.project={{plain_project}} | xargs -r docker volume rm
-
-# --- TLS stack ---
-
-# Start the TLS stack (run `just certs-all` first)
-up-tls:
-    CERT_PASSWORD={{cert_password}} docker compose -p {{tls_project}} -f tls/docker-compose.yml up -d
-
-# Stop the TLS stack
-down-tls:
-    CERT_PASSWORD={{cert_password}} docker compose -p {{tls_project}} -f tls/docker-compose.yml down
-
-# Stop the TLS stack and delete its volumes
-clean-volumes-tls: down-tls
-    docker volume ls -q --filter label=com.docker.compose.project={{tls_project}} | xargs -r docker volume rm
+    docker volume ls -q --filter label=com.docker.compose.project={{project}} | xargs -r docker volume rm
 
 # --- Certs ---
 
@@ -51,7 +50,21 @@ certs-user:
 # Generate CA, server, and user certs in order
 certs-all: certs-ca certs-server certs-user
 
+# Print the DN NiFi derives from the user cert (must equal INITIAL_ADMIN_IDENTITY).
+# sep_comma_plus_space matches how NiFi renders the principal -- plain RFC2253
+# omits the spaces and will not match.
+certs-dn:
+    @openssl x509 -in certs/user_crt.pem -noout -subject -nameopt RFC2253,sep_comma_plus_space | sed 's/^subject= *//'
+
 # Remove generated cert material for a clean re-run
 clean-certs:
     rm -f certs/*.p12 certs/*.pem certs/*.csr certs/index.txt* certs/serial.txt*
     rm -rf certs/signed
+
+# --- Verify ---
+
+# Prove the UI authorizes the generated client cert as the initial admin
+verify:
+    curl -sS --cacert certs/ca_crt.pem \
+      --cert certs/user_crt.pem --key certs/user_key.pem --pass {{cert_password}} \
+      https://localhost:8443/nifi-api/flow/current-user
