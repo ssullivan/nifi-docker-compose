@@ -25,6 +25,7 @@ just certs-all   # generate the CA, server, and user certs
 just up          # start NiFi
 just wait        # block until the HTTPS listener answers (15-60s, plus the image pull on first run)
 just verify      # prove the client cert authenticates as the initial admin
+just verify-ui   # same, but drives the real UI in headless Chrome
 ```
 
 `just verify` should print a JSON body containing
@@ -57,6 +58,41 @@ There is no username/password login. You need two things in your browser:
 Open <https://localhost:8443/nifi/> and pick the `NifiAdmin` certificate when
 prompted. The server certificate covers `localhost`, `localhost.localdomain`,
 `127.0.0.1`, and `::1`; any other hostname will fail verification.
+
+## Verifying the UI headlessly
+
+`just verify` only proves the API accepts the certificate. `just verify-ui`
+goes further and renders the actual Angular app in headless Chrome, asserting
+that the page reaches the flow canvas as `CN=NifiAdmin, ...` and that NiFi
+authorized it — the failure `just verify` is least likely to catch on its own.
+
+```bash
+just verify-ui
+# ==> rendering https://localhost:8443/nifi/
+# ==> checking authorization
+# PASS: headless Chrome loaded the UI as CN=NifiAdmin, O=Test, L=Baltimore, ST=MD, C=US
+```
+
+Chrome runs in a container (`verify/`) built on first use, rather than using a
+Chrome you have installed. Two reasons, both about client certificates:
+
+1. **Headless Chrome cannot draw the certificate picker.** When NiFi asks for a
+   client cert it blocks forever instead of failing, so Chrome needs the
+   `AutoSelectCertificateForUrls` policy to choose up front. On Linux that
+   policy is only read from `/etc/opt/chrome/policies/managed`, which is
+   root-owned and has no per-user equivalent.
+2. **Chrome ignores the system CA bundle for user-added roots.** Both the CA and
+   the client cert have to be imported into an NSS database at
+   `~/.pki/nssdb` with `certutil`/`pk12util`.
+
+Doing that on the host would mean `sudo` plus permanent changes to your personal
+browser profile. In the container both are free: the policy ships in the image
+and `verify/entrypoint.sh` rebuilds a throwaway NSS database from `certs/` on
+every run, so it always matches whatever `just certs-all` last produced and your
+own Chrome is never touched. `just clean-chrome` removes the image.
+
+The container uses `--network host` to reach `localhost:8443`, which is a Linux
+Docker behaviour; on Docker Desktop you would need to publish differently.
 
 ## Generating certs
 
